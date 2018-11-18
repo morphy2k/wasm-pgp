@@ -1,0 +1,75 @@
+<html>
+	<head>
+		<meta charset="utf-8">
+	</head>
+	<body>
+		<div class="form-box">
+			<form name="mail" class="mail-form" action="/mailer" method="post">
+				<input required type="email" name="address" autocomplete="email" placeholder="E-Mail address" autofocus>
+				<textarea required type="text" name="message" rows="20" cols="80" maxlength="1400" placeholder="Message..." spellcheck="false"></textarea>
+				<input type="submit" name="submit" value="Send">
+				<input type="button" name="encrypt" value="Encrypt" disabled>
+			</form>
+		</div>
+
+		<script>
+			const worker = new Worker('worker.js');
+
+			const form = document.querySelector('form');
+			const text = form.querySelector('textarea');
+			const encrypt = form.querySelector('input[name="encrypt"]');
+			const submit = form.querySelector('input[type="submit"]');
+
+			let message = '';
+			let ciphertext = '';
+
+			const loadKey = async () => {
+				const resp = await fetch('pub.asc');
+				worker.postMessage(['keyload', await resp.text()]);
+			};
+
+			worker.onmessage = e => {
+				const event = e.data[0];
+			  const data = e.data[1];
+
+				switch (event) {
+					case 'init':
+						loadKey()
+							.then(() => encrypt.disabled = false)
+							.catch(err => console.error(err));
+						break;
+					case 'encrypt':
+						ciphertext = data;
+						text.value = ciphertext;
+						submit.disabled = false;
+						encrypt.value = 'Plaintext';
+						encrypt.disabled = false;
+						break;
+					case 'error':
+						console.error(data);
+						break;
+					default:
+						console.error(new Error('Unknown event received'));
+				}
+			};
+
+			encrypt.addEventListener('click', e => {
+				if (text.value.length === 0) return;
+
+				if (text.value === ciphertext) {
+					text.value = message;
+					text.readOnly = false;
+					encrypt.value = 'Encrypt';
+					return;
+				}
+
+				text.readOnly = true;
+				message = text.value;
+				encrypt.disabled = true;
+				submit.disabled = true;
+				worker.postMessage(['encrypt', message]);
+			});
+
+		</script>
+	</body>
+</html>
