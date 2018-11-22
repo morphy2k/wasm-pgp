@@ -2,14 +2,14 @@
 
 importScripts('wasm_exec.js');
 
-const init = async key => {
+const init = async () => {
   try {
     const go = new Go();
-    const wasm = await WebAssembly.instantiateStreaming(fetch("wasm-pgp.wasm"), go.importObject);
+    const wasm = await WebAssembly.instantiateStreaming(fetch("../wasm/wasm-pgp.wasm"), go.importObject);
     go.run(wasm.instance);
     postMessage(['init']);
   } catch (err) {
-    postMessage(['error', err]);
+    console.error(err);
   }
 };
 init();
@@ -33,6 +33,6 @@ onmessage = e => {
       }, 200);
       break;
     default:
-      postMessage(['error', new Error('Unknown event received')]);
+      console.error(new Error('Unknown event received'));
   }
 };
