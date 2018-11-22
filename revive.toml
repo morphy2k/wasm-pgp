@@ -1,32 +1,38 @@
-ignoreGeneratedHeader = false
-severity = "warning"
-confidence = 0.8
-errorCode = 0
-warningCode = 0
+# Configuration for Revive linter (https://github.com/mgechev/revive)
 
+ignoreGeneratedHeader = false
+confidence = 0.8
+severity = "warning"
+warningCode = 0
+errorCode = 0
+
+[rule.argument-limit]
+arguments = [4]
 [rule.blank-imports]
+[rule.confusing-naming]
+[rule.confusing-results]
 [rule.context-as-argument]
 [rule.context-keys-type]
 [rule.dot-imports]
+[rule.empty-block]
+[rule.errorf]
+[rule.error-naming]
 [rule.error-return]
 [rule.error-strings]
-[rule.error-naming]
 [rule.exported]
 [rule.if-return]
 [rule.increment-decrement]
-[rule.var-naming]
-[rule.var-declaration]
+[rule.indent-error-flow]
+[rule.modifies-parameter]
+[rule.modifies-value-receiver]
 [rule.package-comments]
 [rule.range]
 [rule.receiver-naming]
+[rule.struct-tag]
+[rule.superfluous-else]
 [rule.time-naming]
 [rule.unexported-return]
-[rule.indent-error-flow]
-[rule.errorf]
-[rule.argument-limit]
-arguments = [4]
-[rule.empty-block]
-[rule.confusing-naming]
-[rule.superfluous-else]
-[rule.unused-parameter]
 [rule.unreachable-code]
+[rule.unused-parameter]
+[rule.var-declaration]
+[rule.var-naming]
