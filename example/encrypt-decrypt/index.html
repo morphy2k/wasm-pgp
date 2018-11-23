@@ -1,0 +1,22 @@
+<!doctype html>
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>WasmPGP Decrypt/Encrypt Example</title>
+	</head>
+	<body>
+
+		<form name="encryption">
+			<textarea required name="message" rows="20" cols="80" placeholder="Message..." spellcheck="false"></textarea>
+			<input title="Encrypt message with OpenPGP" type="button" name="encrypt" value="Encrypt" disabled>
+		</form>
+
+		<form name="decryption">
+			<textarea required name="message" rows="20" cols="80" placeholder="Armored message..." spellcheck="false"></textarea>
+			<input title="Decrypt message with OpenPGP" type="button" name="decrypt" value="Decrypt" disabled>
+		</form>
+
+		<script src="ressources/js/main.js"></script>
+	</body>
+</html>
