@@ -87,7 +87,7 @@ func addArmoredKeyRing(i []js.Value) {
 
 func removeKeys(_ []js.Value) {
 	pgpInst.EntityList = openpgp.EntityList{}
-	log.Println("Entity successfully removed")
+	log.Println("All keys successfully removed")
 }
 
 func encryptMessage(i []js.Value) {
