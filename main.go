@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"log"
 	"syscall/js"
@@ -22,58 +23,101 @@ type pgp struct {
 	EntityList openpgp.EntityList
 }
 
-// LoadArmoredKey load a armored PGP key into entity list
-func (p *pgp) LoadArmoredKey(k string) (err error) {
-	p.EntityList, err = openpgp.ReadArmoredKeyRing(bytes.NewBufferString(k))
-	return err
+// AddArmoredKeyRing adds an armored PGP keyring into entity list
+func (p *pgp) AddArmoredKeyRing(kr []byte) (err error) {
+	el, err := openpgp.ReadArmoredKeyRing(bytes.NewReader(kr))
+	if err != nil {
+		return
+	}
+	pgpInst.EntityList = append(pgpInst.EntityList, el...)
+	return
 }
 
-// Encrypt encrypts plaintext and converts to ASCII Armor
-func (p *pgp) Encrypt(pt []byte) (*bytes.Buffer, error) {
-
-	b := new(bytes.Buffer)
-
+// Encrypt encrypts a plaintext into ASCII armored format
+func (p *pgp) Encrypt(pt []byte) (b *bytes.Buffer, err error) {
 	w, err := armor.Encode(b, p.Type, p.Header)
 	if err != nil {
-		return b, err
+		return
 	}
 
 	t, err := openpgp.Encrypt(w, p.EntityList, nil, nil, nil)
 	if err != nil {
-		return b, err
+		return
 	}
 
 	_, err = t.Write(pt)
 	if err != nil {
-		return b, err
+		return
 	}
 
 	t.Close()
 	w.Close()
 
-	return b, nil
+	return
 }
 
-func loadArmoredKey(i []js.Value) {
-	err := pgpInst.LoadArmoredKey(i[0].String())
+// Decrypt decrypts an ASCII armored cipertext
+func (p *pgp) Decrypt(ct []byte) (md *openpgp.MessageDetails, err error) {
+	b, err := armor.Decode(bytes.NewReader(ct))
 	if err != nil {
-		log.Fatal(err)
+		return
 	}
-	log.Println("Armored key loaded successfully")
+
+	if b.Type != pgpInst.Type {
+		err = errors.New("Invalid message type")
+		return
+	}
+
+	md, err = openpgp.ReadMessage(b.Body, p.EntityList, nil, nil)
+
+	return
+}
+
+func addArmoredKeyRing(i []js.Value) {
+	err := pgpInst.AddArmoredKeyRing([]byte(i[0].String()))
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	log.Println("Armored keyring successfully added")
+}
+
+func removeKeys(_ []js.Value) {
+	pgpInst.EntityList = openpgp.EntityList{}
+	log.Println("Entity successfully removed")
 }
 
 func encryptMessage(i []js.Value) {
 	msg, err := pgpInst.Encrypt([]byte(i[0].String()))
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		return
 	}
+
 	js.Global().Set(i[1].String(), js.ValueOf(msg.String()))
 	log.Println("Message successfully encrypted")
 }
 
+func decryptMessage(i []js.Value) {
+	md, err := pgpInst.Decrypt([]byte(i[0].String()))
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	b := new(bytes.Buffer)
+	b.ReadFrom(md.UnverifiedBody)
+
+	js.Global().Set(i[1].String(), js.ValueOf(b.String()))
+	log.Println("Message successfully decrypted")
+}
+
 func registerFunctions() {
-	js.Global().Set("loadArmoredKey", js.NewCallback(loadArmoredKey))
+	js.Global().Set("addArmoredKeyRing", js.NewCallback(addArmoredKeyRing))
 	js.Global().Set("encryptMessage", js.NewCallback(encryptMessage))
+	js.Global().Set("decryptMessage", js.NewCallback(decryptMessage))
+	js.Global().Set("removeKeys", js.NewCallback(removeKeys))
 }
 
 func main() {
