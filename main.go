@@ -35,6 +35,8 @@ func (p *pgp) AddArmoredKeyRing(kr []byte) (err error) {
 
 // Encrypt encrypts a plaintext into ASCII armored format
 func (p *pgp) Encrypt(pt []byte) (b *bytes.Buffer, err error) {
+	b = bytes.NewBuffer(nil)
+
 	w, err := armor.Encode(b, p.Type, p.Header)
 	if err != nil {
 		return
