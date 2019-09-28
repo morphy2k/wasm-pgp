@@ -97,7 +97,7 @@ func encryptMessage(i []js.Value) {
 		return
 	}
 
-	js.Global().Set(i[1].String(), js.ValueOf(msg.String()))
+	js.Global().Set(i[1].String(), msg.String())
 	log.Println("Message successfully encrypted")
 }
 
@@ -111,15 +111,15 @@ func decryptMessage(i []js.Value) {
 	b := new(bytes.Buffer)
 	b.ReadFrom(md.UnverifiedBody)
 
-	js.Global().Set(i[1].String(), js.ValueOf(b.String()))
+	js.Global().Set(i[1].String(), b.String())
 	log.Println("Message successfully decrypted")
 }
 
 func registerFunctions() {
-	js.Global().Set("addArmoredKeyRing", js.NewCallback(addArmoredKeyRing))
-	js.Global().Set("encryptMessage", js.NewCallback(encryptMessage))
-	js.Global().Set("decryptMessage", js.NewCallback(decryptMessage))
-	js.Global().Set("removeKeys", js.NewCallback(removeKeys))
+	js.Global().Set("addArmoredKeyRing", addArmoredKeyRing)
+	js.Global().Set("encryptMessage", encryptMessage)
+	js.Global().Set("decryptMessage", decryptMessage)
+	js.Global().Set("removeKeys", removeKeys)
 }
 
 func main() {

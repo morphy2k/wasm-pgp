@@ -35,7 +35,7 @@ const openpgp = async () => {
       case 'encrypt':
         encryptInput.value = data;
         encryptBTN.value = 'Revert';
-        encryptBTN.title = 'Show unecrypted message'
+        encryptBTN.title = 'Show unecrypted message';
         encryptBTN.disabled = false;
         break;
       case 'decrypt':

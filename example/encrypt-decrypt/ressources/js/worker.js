@@ -42,7 +42,7 @@ onmessage = e => {
   output = null;
 };
 
-var output;
+var output = '';
 const getOutput = () => new Promise((resolve, reject) => {
   const count = 20;
   const time = 100;
